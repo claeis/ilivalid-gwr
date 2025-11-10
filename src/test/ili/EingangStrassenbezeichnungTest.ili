@@ -1,0 +1,22 @@
+INTERLIS 2.4;
+
+MODEL EingangStrassenbezeichnungTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	EGID: IliValidGwr_V1_0.GWR_EGID;
+        	EDID: IliValidGwr_V1_0.GWR_EDID;
+        	strname : TEXT;
+
+            MANDATORY CONSTRAINT GWRC02a: 
+                 IliValidGwr_V1_0.eingangStrassenbezeichnungGWR(EGID,EDID)==strname;
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END EingangStrassenbezeichnungTest.

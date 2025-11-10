@@ -1,0 +1,190 @@
+INTERLIS 2.4;
+
+MODEL IliValidGwr_V1_0Test (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS GeometryCHLV95_V2;
+IMPORTS IliValidGwr_V1_0;
+IMPORTS IliVRuntime_V1_0;
+IMPORTS Elements_V1_0;
+
+  FUNCTION plzAV(geometrie: IliValidGwr_V1_0.Coord2): 0..9999;
+  FUNCTION ortschaftAV(geometrie: IliValidGwr_V1_0.Coord2): TEXT;
+  
+
+    TOPIC Bodenbedeckung_Validierung = 
+  
+        CLASS Bodenbedeckung =
+        	EGID: 1 .. 900000000;
+
+            !!@ ilivalid.msg="EGID existiert nicht im GWR";
+            !!@ ilivalid.msg_de="EGID existiert nicht im GWR";
+            !!@ ilivalid.msg_fr="L'EGID n'existe pas dans le RegBL";
+            !!@ ilivalid.msg_it="L'EGID non esiste nel REA";
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC02a: DEFINED(EGID) =>
+                 IliValidGwr_V1_0.egidExistsInGWR(EGID,PARAMETER IliVRuntime_V1_0.Scope);
+
+        END Bodenbedeckung;
+
+    END Bodenbedeckung_Validierung;
+
+    TOPIC Einzelobjekte_Validierung = 
+  
+        CLASS Einzelobjekt =
+        	EGID:  1 .. 900000000;
+        	
+            !!@ ilivalid.msg="EGID existiert nicht im GWR";
+            !!@ ilivalid.msg_de="EGID existiert nicht im GWR";
+            !!@ ilivalid.msg_fr="L'EGID n'existe pas dans le RegBL";
+            !!@ ilivalid.msg_it="L'EGID non esiste nel REA";
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC02c: DEFINED(EGID) =>
+                 IliValidGwr_V1_0.egidExistsInGWR(EGID,PARAMETER IliVRuntime_V1_0.Scope);
+
+        END Einzelobjekt;
+
+    END Einzelobjekte_Validierung;
+
+    TOPIC Gebaeudeadressen_Validierung = 
+    DOMAIN
+    Objektstatus = ( 
+      projektiert, 
+      real, 
+      vergangen);
+      Sprache = (
+          de,
+          fr,
+          it,
+          rm);
+
+    STRUCTURE Lokalisationsname =
+      Name: MANDATORY TEXT*60; 
+      Sprache: MANDATORY Sprache;
+    END Lokalisationsname; 
+    
+	    CLASS Lokalisation =
+	    	LokalisationName: BAG {1..*} OF Lokalisationsname;
+	    END Lokalisation;
+	    
+        CLASS Gebaeudeeingang =
+		  Gebaeudestatus: MANDATORY Objektstatus;
+		  Geometrie: MANDATORY GeometryCHLV95_V2.Coord2; 
+		  Hausnummer:  TEXT*12;
+		  EGID:  1..900000000;
+		  EDID:  0..90;
+        END Gebaeudeeingang;
+        
+    ASSOCIATION LokalisationGebaeudeeingang =
+      Lokalisation -<> {0..1} Lokalisation;
+      Gebaeudeeingang -- {0..*} Gebaeudeeingang;
+    END LokalisationGebaeudeeingang;
+
+
+        CONSTRAINTS OF Gebaeudeeingang =
+            !!@ ilivalid.msg="Die in der AV verwendete Lokalisation wurde im GWR nicht gefunden";
+            !!@ ilivalid.msg_de="Die in der AV verwendete Lokalisation wurde im GWR nicht gefunden";
+            !!@ ilivalid.msg_fr="La localisation utilisée dans la MO n'a pas été trouvée dans le RegBL";
+            !!@ ilivalid.msg_it="La localizzazione presente nella MU non si trova nel REA";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            !! TODO in ch.sqlite ist nur eine Sprache, und es ist nicht klar welche
+            MANDATORY CONSTRAINT GWRB01: 
+                IliValidGwr_V1_0.strassenbezeichnungExistsInGWR(Elements_V1_0.valuesOfPath("Lokalisation->LokalisationName->Name"),PARAMETER IliVRuntime_V1_0.Scope)
+            ;
+            
+
+            !!@ ilivalid.msg="Im GWR verwendete Strassenbezeichnung wird in der AV nicht geführt";
+            !!@ ilivalid.msg_de="Im GWR verwendete Strassenbezeichnung wird in der AV nicht geführt";
+            !!@ ilivalid.msg_fr="La désignation de la rue utilisée dans le RegBL n'existe pas dans la MO";
+            !!@ ilivalid.msg_it="La designazione della via presente nel REA non si trova nella MU";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRB02: NOT(Elements_V1_0.existsInListN(IliValidGwr_V1_0.gebaeudeStatusGWR(EGID),Elements_V1_0.valuesN("1007, 1008"))) =>
+                Elements_V1_0.existsInList(IliValidGwr_V1_0.eingangStrassenbezeichnungGWR(EGID,EDID),Elements_V1_0.valuesOfPath("Lokalisation->LokalisationName->Name"))
+            ;
+
+            !!@ ilivalid.msg="EGID existiert nicht im GWR";
+            !!@ ilivalid.msg_de="EGID existiert nicht im GWR";
+            !!@ ilivalid.msg_fr="Si Validite=projete, il faut que Attributs_provisoires=true";
+            !!@ ilivalid.msg_it="L'EGID non esiste nel REA";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC02: DEFINED(EGID) =>
+                 IliValidGwr_V1_0.egidExistsInGWR(EGID,PARAMETER IliVRuntime_V1_0.Scope);
+
+            !!@ ilivalid.msg="Kombination EGID/EDID existiert nicht im GWR";
+            !!@ ilivalid.msg_de="Kombination EGID/EDID existiert nicht im GWR";
+            !!@ ilivalid.msg_fr="La combinaison EGID/EDID n'existe pas dans le RegBL";
+            !!@ ilivalid.msg_it="La combinazione EGID/EDID non esiste nel REA";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC03:
+                (DEFINED(EGID) AND DEFINED(EDID)) => 
+                	IliValidGwr_V1_0.edidExistsInGWR(EGID,EDID,PARAMETER IliVRuntime_V1_0.Scope);                
+
+            !!@ ilivalid.msg="EGID (bestehend) aus dem GWR ist in der AV nicht vorhanden (auch nicht projektiert)";
+            !!@ ilivalid.msg_de="EGID (bestehend) aus dem GWR ist in der AV nicht vorhanden (auch nicht projektiert)";
+            !!@ ilivalid.msg_fr="EGID (existant) du RegBL n'existe pas dans la MO et n'est pas non plus en projet";
+            !!@ ilivalid.msg_it="L'EGID (esistente) nel REA non è presente nella MU neppure sotto forma di progetto";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            SET CONSTRAINT GWRC04:
+                IliValidGwr_V1_0.egidSetCompareGWR(ALL,>>EGID,PARAMETER IliVRuntime_V1_0.Scope)
+            ;
+
+            !!@ ilivalid.msg="EGID (bestehend) aus dem GWR ist in der AV nicht nachgeführt";
+            !!@ ilivalid.msg_de="EGID (bestehend) aus dem GWR ist in der AV nicht nachgeführt";
+            !!@ ilivalid.msg_fr="EGID (existant) du RegBL n'est pas mis à jour dans la MO";
+            !!@ ilivalid.msg_it="L'EGID (esistente) nel REA non è aggiornato nella MU";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            SET CONSTRAINT GWRC05: WHERE Gebaeudestatus==#projektiert OR Gebaeudestatus==#vergangen:
+                IliValidGwr_V1_0.egidSetCompareGstatGWR(ALL,>>EGID,PARAMETER IliVRuntime_V1_0.Scope,Elements_V1_0.valuesN("1004,1005"))
+            ;
+            
+            !!@ ilivalid.msg="EGID (projektiert/bewilligt/im Bau/nicht realisiert) aus dem GWR ist in der AV real";
+            !!@ ilivalid.msg_de="EGID (projektiert/bewilligt/im Bau/nicht realisiert) aus dem GWR ist in der AV real";
+            !!@ ilivalid.msg_fr="EGID (en projet / autorisé / en construction / non réalisé) du RegBL est réel dans la MO";
+            !!@ ilivalid.msg_it="L'EGID (progettato / autorizzato / in fase di realizzazione / non realizzato) nel REA è reale nella MU";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            SET CONSTRAINT GWRC07: WHERE Gebaeudestatus==#real:
+                IliValidGwr_V1_0.egidSetCompareGstatGWR(ALL,>>EGID,PARAMETER IliVRuntime_V1_0.Scope,Elements_V1_0.valuesN("1001,1002, 1003, 1008"))
+            ;
+
+            !!@ ilivalid.msg="Identische Gebäudeadresse mit unterschiedlicher EGID/EDID in AV und GWR";
+            !!@ ilivalid.msg_de="Identische Gebäudeadresse mit unterschiedlicher EGID/EDID in AV und GWR";
+            !!@ ilivalid.msg_fr="Adresse du bâtiment identique entre la MO et le RegBL avec un EGID/EDID différent";
+            !!@ ilivalid.msg_it="Indirizzi identici con differenti EGID/EDID nella MU e nel REA";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC08:
+                IliValidGwr_V1_0.expectEgidEdidGWR(EGID,EDID,Elements_V1_0.valuesOfPath("Lokalisation->LokalisationName->Name"), Hausnummer, plzAV(Geometrie), ortschaftAV(Geometrie),Elements_V1_0.valuesN("1004, 1005"))
+            ;
+
+            !!@ ilivalid.msg="Identischer EGID/EDID mit unterschiedlicher Gebäudeadresse in AV und GWR";
+            !!@ ilivalid.msg_de="Identischer EGID/EDID mit unterschiedlicher Gebäudeadresse in AV und GWR";
+            !!@ ilivalid.msg_fr="EGID/EDID identique avec adresse du bâtiment différente entre la MO et le RegBL";
+            !!@ ilivalid.msg_it="EGID/EDID identici con differenti indirizzi dell'edificio nella MU e nel REA";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC09:
+                IliValidGwr_V1_0.expectAdresseGWR(Elements_V1_0.valuesOfPath("Lokalisation->LokalisationName->Name"), Hausnummer, plzAV(Geometrie), ortschaftAV(Geometrie),EGID,EDID,Elements_V1_0.valuesN("1007, 1008"))
+            ;
+
+            !!@ ilivalid.msg="Das Gebäude zählt weniger Eingänge in der AV als im GWR";
+            !!@ ilivalid.msg_de="Das Gebäude zählt weniger Eingänge in der AV als im GWR";
+            !!@ ilivalid.msg_fr="Le bâtiment compte moins d'entrées dans la MO que dans le RegBL";
+            !!@ ilivalid.msg_it="L'edificio ha meno entrate nella MU che nel REA";
+            !! Kategorie: modellübergreifend
+            !! Umsetzung Phase 3;
+            MANDATORY CONSTRAINT GWRC13:
+                IliValidGwr_V1_0.gebaeudeCountEdidAV(EGID)<IliValidGwr_V1_0.gebaeudeCountEdidGWR(EGID)
+            ;
+
+        END;
+
+    END Gebaeudeadressen_Validierung;
+
+END IliValidGwr_V1_0Test.

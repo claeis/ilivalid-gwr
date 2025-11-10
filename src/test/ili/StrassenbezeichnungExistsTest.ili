@@ -1,0 +1,21 @@
+INTERLIS 2.4;
+
+MODEL StrassenbezeichnungExistsTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	MunicipalityId: IliValidGwr_V1_0.MunicipalityId;
+        	strname : LIST OF TEXT;
+
+            MANDATORY CONSTRAINT GWRC02a: 
+                 IliValidGwr_V1_0.strassenbezeichnungExistsInGWR(strname,MunicipalityId);
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END StrassenbezeichnungExistsTest.

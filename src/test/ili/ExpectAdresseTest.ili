@@ -1,0 +1,26 @@
+INTERLIS 2.4;
+
+MODEL ExpectAdresseTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-11-07" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	Lokalisation: LIST OF TEXT; 
+        	Hausnummer:TEXT; 
+        	plz:0..9999; 
+        	ortschaft:TEXT;
+        	gstatNotEqual:BAG OF 0..9999;
+        	egid: IliValidGwr_V1_0.GWR_EGID;
+        	edid: IliValidGwr_V1_0.GWR_EDID;
+
+            MANDATORY CONSTRAINT GWRC02a: 
+                 IliValidGwr_V1_0.expectAdresseGWR(Lokalisation,Hausnummer,plz,ortschaft,egid,edid,gstatNotEqual);
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END ExpectAdresseTest.

@@ -1,0 +1,21 @@
+INTERLIS 2.4;
+
+MODEL GebaeudeStatusTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	EGID: IliValidGwr_V1_0.GWR_EGID;
+        	Status : 0..9999;
+
+            MANDATORY CONSTRAINT GWRC02a: 
+                 IliValidGwr_V1_0.gebaeudeStatusGWR(EGID)==Status;
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END GebaeudeStatusTest.

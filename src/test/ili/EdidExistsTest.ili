@@ -1,0 +1,21 @@
+INTERLIS 2.4;
+
+MODEL EdidExistsTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Gebaeudeeingang =
+        	MunicipalityId: IliValidGwr_V1_0.MunicipalityId;
+        	EGID: IliValidGwr_V1_0.GWR_EGID;
+        	EDID: IliValidGwr_V1_0.GWR_EDID;
+
+            MANDATORY CONSTRAINT GWRC03: 
+                 IliValidGwr_V1_0.edidExistsInGWR(EGID,EDID,MunicipalityId);
+        END Gebaeudeeingang;
+
+    END TopicA;
+
+END EdidExistsTest.

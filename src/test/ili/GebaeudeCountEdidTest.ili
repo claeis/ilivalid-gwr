@@ -1,0 +1,21 @@
+INTERLIS 2.4;
+
+MODEL GebaeudeCountEdidTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	EGID: IliValidGwr_V1_0.GWR_EGID;
+        	Count : 0..99;
+
+            MANDATORY CONSTRAINT GWRC02a: 
+                 IliValidGwr_V1_0.gebaeudeCountEdidGWR(EGID)==Count;
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END GebaeudeCountEdidTest.

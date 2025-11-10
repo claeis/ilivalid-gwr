@@ -1,0 +1,26 @@
+INTERLIS 2.4;
+
+MODEL ExpectEgidEdidTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	egid: IliValidGwr_V1_0.GWR_EGID;
+        	edid: IliValidGwr_V1_0.GWR_EDID;
+        	Lokalisation: LIST OF TEXT; 
+        	Hausnummer:TEXT; 
+        	plz:0..9999; 
+        	ortschaft:TEXT;
+        	gstatEqual:BAG OF 0..9999;
+
+            MANDATORY CONSTRAINT GWRC02a: 
+                 IliValidGwr_V1_0.expectEgidEdidGWR(egid,edid,Lokalisation,Hausnummer,plz,ortschaft,gstatEqual);
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END ExpectEgidEdidTest.
