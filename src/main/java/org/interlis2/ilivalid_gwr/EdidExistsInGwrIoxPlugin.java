@@ -27,7 +27,7 @@ import ch.interlis.iox_j.validator.ObjectPool;
 import ch.interlis.iox_j.validator.Value;
 
 // FUNCTION edidExistsInGWR(egid: GWR_EGID;edid:GWR_EDID;municipality: MunicipalityId): BOOLEAN;
-public class EdidExistsInGwrPlugin implements InterlisFunction {
+public class EdidExistsInGwrIoxPlugin implements InterlisFunction {
     public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.edidExistsInGWR";
     private TransferDescription td=null;
     private GwrDownload gwr=null;

@@ -26,9 +26,9 @@ import ch.interlis.iox_j.validator.InterlisFunction;
 import ch.interlis.iox_j.validator.ObjectPool;
 import ch.interlis.iox_j.validator.Value;
 
-// FUNCTION gebaeudeCountEdidGWR(egid: GWR_EGID): 0..99; !! Anzahl Eingaenge im GWR
-public class GebaeudeCountEdidGwrPlugin implements InterlisFunction {
-    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.gebaeudeCountEdidGWR";
+//  FUNCTION gebaeudeStatusGWR(egid: GWR_EGID): 0..9999;
+public class GebaeudeStatusGwrIoxPlugin implements InterlisFunction {
+    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.gebaeudeStatusGWR";
     private TransferDescription td=null;
     private GwrDownload gwr=null;
     @Override
@@ -60,7 +60,7 @@ public class GebaeudeCountEdidGwrPlugin implements InterlisFunction {
         }
         Integer stat=null;
         try {
-            stat = gebaeudeCountEdidGWR(egid,gwrFile);
+            stat = gebaeudeStatusGWR(egid,gwrFile);
         } catch (SQLException e) {
             EhiLogger.logError(e);
             return Value.createSkipEvaluation();
@@ -71,17 +71,17 @@ public class GebaeudeCountEdidGwrPlugin implements InterlisFunction {
         return Value.createUndefined();
     }
 
-    private Integer gebaeudeCountEdidGWR(int egid, File gwrFile) throws SQLException {
+    private Integer gebaeudeStatusGWR(int egid, File gwrFile) throws SQLException {
         Connection jdbcConnection=null;
         PreparedStatement stmt=null;
         try {
             jdbcConnection = DriverManager.getConnection("jdbc:sqlite:"+gwrFile, null, null);
-            stmt=jdbcConnection.prepareStatement("SELECT count(*) FROM entrance WHERE EGID=?");
+            stmt=jdbcConnection.prepareStatement("SELECT GSTAT FROM building WHERE EGID=?");
             stmt.setInt(1,egid);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()) {
-                int count=rs.getInt(1);
-                return count;
+                int stat=rs.getInt(1);
+                return stat;
             }
         }finally {
             if(stmt!=null) {

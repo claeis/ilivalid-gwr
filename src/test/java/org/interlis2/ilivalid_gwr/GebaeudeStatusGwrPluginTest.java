@@ -24,8 +24,8 @@ import org.junit.Assert;
 import java.util.Map;
 
 public class GebaeudeStatusGwrPluginTest {
-    private static final String ILI_FUNCTION_NAME=GebaeudeStatusGwrPlugin.ILI_QUALIFIED_FUNCTION_NAME;
-    private static final Class PLUGIN=GebaeudeStatusGwrPlugin.class;
+    private static final String ILI_FUNCTION_NAME=GebaeudeStatusGwrIoxPlugin.ILI_QUALIFIED_FUNCTION_NAME;
+    private static final Class PLUGIN=GebaeudeStatusGwrIoxPlugin.class;
     private static final String ILI_MODEL="GebaeudeStatusTest";
     private static final String ILI_TOPIC_A=ILI_MODEL+".TopicA";
     private static final String ILI_A_BODENBEDECKUNG_EGID = "EGID";
@@ -41,6 +41,10 @@ public class GebaeudeStatusGwrPluginTest {
         ili2cConfig.addFileEntry(new FileEntry("src/test/ili/GebaeudeStatusTest.ili", FileEntryKind.ILIMODELFILE));
         td=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
         Assert.assertNotNull(td);
+    }
+    @Test
+    public void pluginClassName_Ok() {
+        Assert.assertTrue(PLUGIN.getName().endsWith(ch.interlis.iox_j.plugins.PluginLoader.IOX_PLUGIN));
     }
     @Test
     public void egidExists_Ok() {

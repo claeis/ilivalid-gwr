@@ -24,8 +24,8 @@ import org.junit.Assert;
 import java.util.Map;
 
 public class ExpectAdresseGwrPluginTest {
-    private static final String ILI_FUNCTION_NAME=ExpectAdresseGwrPlugin.ILI_QUALIFIED_FUNCTION_NAME;
-    private static final Class PLUGIN=ExpectAdresseGwrPlugin.class;
+    private static final String ILI_FUNCTION_NAME=ExpectAdresseGwrIoxPlugin.ILI_QUALIFIED_FUNCTION_NAME;
+    private static final Class PLUGIN=ExpectAdresseGwrIoxPlugin.class;
     private static final String ILI_MODEL="ExpectAdresseTest";
     private static final String ILI_TOPIC_A=ILI_MODEL+".TopicA";
     private static final String ILI_A_BODENBEDECKUNG_EGID = "egid";
@@ -47,6 +47,10 @@ public class ExpectAdresseGwrPluginTest {
         ili2cConfig.addFileEntry(new FileEntry("src/test/ili/ExpectAdresseTest.ili", FileEntryKind.ILIMODELFILE));
         td=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
         Assert.assertNotNull(td);
+    }
+    @Test
+    public void pluginClassName_Ok() {
+        Assert.assertTrue(PLUGIN.getName().endsWith(ch.interlis.iox_j.plugins.PluginLoader.IOX_PLUGIN));
     }
     @Test
     public void exists_Ok() {

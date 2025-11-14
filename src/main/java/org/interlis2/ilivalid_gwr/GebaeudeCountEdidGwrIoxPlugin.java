@@ -26,9 +26,9 @@ import ch.interlis.iox_j.validator.InterlisFunction;
 import ch.interlis.iox_j.validator.ObjectPool;
 import ch.interlis.iox_j.validator.Value;
 
-//  FUNCTION gebaeudeStatusGWR(egid: GWR_EGID): 0..9999;
-public class GebaeudeStatusGwrPlugin implements InterlisFunction {
-    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.gebaeudeStatusGWR";
+// FUNCTION gebaeudeCountEdidGWR(egid: GWR_EGID): 0..99; !! Anzahl Eingaenge im GWR
+public class GebaeudeCountEdidGwrIoxPlugin implements InterlisFunction {
+    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.gebaeudeCountEdidGWR";
     private TransferDescription td=null;
     private GwrDownload gwr=null;
     @Override
@@ -60,7 +60,7 @@ public class GebaeudeStatusGwrPlugin implements InterlisFunction {
         }
         Integer stat=null;
         try {
-            stat = gebaeudeStatusGWR(egid,gwrFile);
+            stat = gebaeudeCountEdidGWR(egid,gwrFile);
         } catch (SQLException e) {
             EhiLogger.logError(e);
             return Value.createSkipEvaluation();
@@ -71,17 +71,17 @@ public class GebaeudeStatusGwrPlugin implements InterlisFunction {
         return Value.createUndefined();
     }
 
-    private Integer gebaeudeStatusGWR(int egid, File gwrFile) throws SQLException {
+    private Integer gebaeudeCountEdidGWR(int egid, File gwrFile) throws SQLException {
         Connection jdbcConnection=null;
         PreparedStatement stmt=null;
         try {
             jdbcConnection = DriverManager.getConnection("jdbc:sqlite:"+gwrFile, null, null);
-            stmt=jdbcConnection.prepareStatement("SELECT GSTAT FROM building WHERE EGID=?");
+            stmt=jdbcConnection.prepareStatement("SELECT count(*) FROM entrance WHERE EGID=?");
             stmt.setInt(1,egid);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()) {
-                int stat=rs.getInt(1);
-                return stat;
+                int count=rs.getInt(1);
+                return count;
             }
         }finally {
             if(stmt!=null) {

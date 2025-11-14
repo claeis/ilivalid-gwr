@@ -26,9 +26,9 @@ import ch.interlis.iox_j.validator.InterlisFunction;
 import ch.interlis.iox_j.validator.ObjectPool;
 import ch.interlis.iox_j.validator.Value;
 
-//  FUNCTION egidExistsInGWR(egid: GWR_EGID;municipality: 0..9999): BOOLEAN;
-public class EgidExistsInGwrPlugin implements InterlisFunction {
-    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.egidExistsInGWR";
+// FUNCTION  eingangStrassenbezeichnungGWR(egid: GWR_EGID;edid:GWR_EDID): TEXT*60;
+public class EingangStrassenbezeichnungGwrIoxPlugin implements InterlisFunction {
+    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.eingangStrassenbezeichnungGWR";
     private TransferDescription td=null;
     private GwrDownload gwr=null;
     @Override
@@ -49,13 +49,11 @@ public class EgidExistsInGwrPlugin implements InterlisFunction {
         if(actualArguments[0].isUndefined()) {
             return Value.createUndefined();
         }
-        int egid=Integer.parseInt(actualArguments[0].getValue());
-        // get egid from arguments
-        // get municipality id from arguments
-        String municipalityId=null;
-        if(!actualArguments[1].isUndefined()) {
-            municipalityId=actualArguments[1].getValue();
+        if(actualArguments[1].isUndefined()) {
+            return Value.createUndefined();
         }
+        int egid=Integer.parseInt(actualArguments[0].getValue());
+        int edid=Integer.parseInt(actualArguments[1].getValue());
         // get CH file from BfS website
         File gwrFile=null;
         try {
@@ -64,33 +62,28 @@ public class EgidExistsInGwrPlugin implements InterlisFunction {
             EhiLogger.logError(e);
             return Value.createSkipEvaluation();
         }
-        boolean egidExists=false;
+        String strname=null;
         try {
-            egidExists = egidExistsInGWR(egid,municipalityId,gwrFile);
+            strname = eingangStrassenbezeichnungGWR(egid,edid,gwrFile);
         } catch (SQLException e) {
             EhiLogger.logError(e);
             return Value.createSkipEvaluation();
         }
-        return new Value(egidExists);
+        return new Value(new ch.interlis.ili2c.metamodel.TextType(),strname);
     }
 
-    private boolean egidExistsInGWR(int egid,String municipalityId, File gwrFile) throws SQLException {
+    private String eingangStrassenbezeichnungGWR(int egid,int edid, File gwrFile) throws SQLException {
         List<String> ret=new ArrayList<String>();
         Connection jdbcConnection=null;
         PreparedStatement stmt=null;
         try {
             jdbcConnection = DriverManager.getConnection("jdbc:sqlite:"+gwrFile, null, null);
-            if(municipalityId!=null) {
-                stmt=jdbcConnection.prepareStatement("SELECT EGID FROM building WHERE EGID=? AND GGDENR=?");
-                stmt.setInt(1,egid);
-                stmt.setString(2,municipalityId);
-            }else {
-                stmt=jdbcConnection.prepareStatement("SELECT EGID FROM building WHERE EGID=?");
-                stmt.setInt(1,egid);
-            }
+            stmt=jdbcConnection.prepareStatement("SELECT entrance.STRNAME FROM entrance WHERE entrance.EGID=? and entrance.EDID=?");
+            stmt.setInt(1,egid);
+            stmt.setInt(2,edid);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()) {
-                return true;
+                return rs.getString(1);
             }
         }finally {
             if(stmt!=null) {
@@ -100,7 +93,7 @@ public class EgidExistsInGwrPlugin implements InterlisFunction {
                 jdbcConnection.close();
             }
         }
-        return false;
+        return null;
     }
 
 

@@ -24,8 +24,8 @@ import org.junit.Assert;
 import java.util.Map;
 
 public class EdidExistsInGwrPluginTest {
-    private static final String ILI_FUNCTION_NAME=EdidExistsInGwrPlugin.ILI_QUALIFIED_FUNCTION_NAME;
-    private static final Class PLUGIN=EdidExistsInGwrPlugin.class;
+    private static final String ILI_FUNCTION_NAME=EdidExistsInGwrIoxPlugin.ILI_QUALIFIED_FUNCTION_NAME;
+    private static final Class PLUGIN=EdidExistsInGwrIoxPlugin.class;
     private static final String ILI_MODEL="EdidExistsTest";
     private static final String ILI_TOPIC_A=ILI_MODEL+".TopicA";
     private static final String ILI_A_GEBAEUDEEINGANG_MUNICIPALITY_ID = "MunicipalityId";
@@ -42,6 +42,11 @@ public class EdidExistsInGwrPluginTest {
         ili2cConfig.addFileEntry(new FileEntry("src/test/ili/EdidExistsTest.ili", FileEntryKind.ILIMODELFILE));
         td=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
         Assert.assertNotNull(td);
+    }
+    
+    @Test
+    public void pluginClassName_Ok() {
+        Assert.assertTrue(PLUGIN.getName().endsWith(ch.interlis.iox_j.plugins.PluginLoader.IOX_PLUGIN));
     }
     @Test
     public void edidExists_Ok() {

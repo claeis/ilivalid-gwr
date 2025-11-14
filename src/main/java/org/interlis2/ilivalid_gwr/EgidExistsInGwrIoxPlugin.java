@@ -26,9 +26,9 @@ import ch.interlis.iox_j.validator.InterlisFunction;
 import ch.interlis.iox_j.validator.ObjectPool;
 import ch.interlis.iox_j.validator.Value;
 
-// FUNCTION  strassenbezeichnungExistsInGWR(names: LIST OF TEXT; municipality: MunicipalityId): BOOLEAN;
-public class StrassenbezeichnungExistsInGwrPlugin implements InterlisFunction {
-    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.strassenbezeichnungExistsInGWR";
+//  FUNCTION egidExistsInGWR(egid: GWR_EGID;municipality: 0..9999): BOOLEAN;
+public class EgidExistsInGwrIoxPlugin implements InterlisFunction {
+    public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.egidExistsInGWR";
     private TransferDescription td=null;
     private GwrDownload gwr=null;
     @Override
@@ -49,14 +49,9 @@ public class StrassenbezeichnungExistsInGwrPlugin implements InterlisFunction {
         if(actualArguments[0].isUndefined()) {
             return Value.createUndefined();
         }
-        if(actualArguments[1].isUndefined()) {
-            return Value.createUndefined();
-        }
-        String names[]=actualArguments[0].getValues();
-        if(names==null) {
-            names=new String[1];
-            names[0]=actualArguments[0].getValue();
-        }
+        int egid=Integer.parseInt(actualArguments[0].getValue());
+        // get egid from arguments
+        // get municipality id from arguments
         String municipalityId=null;
         if(!actualArguments[1].isUndefined()) {
             municipalityId=actualArguments[1].getValue();
@@ -69,38 +64,33 @@ public class StrassenbezeichnungExistsInGwrPlugin implements InterlisFunction {
             EhiLogger.logError(e);
             return Value.createSkipEvaluation();
         }
-        boolean nameExists=false;
+        boolean egidExists=false;
         try {
-            nameExists = strassenbezeichnungExistsInGWR(names,municipalityId,gwrFile);
+            egidExists = egidExistsInGWR(egid,municipalityId,gwrFile);
         } catch (SQLException e) {
             EhiLogger.logError(e);
             return Value.createSkipEvaluation();
         }
-        return new Value(nameExists);
+        return new Value(egidExists);
     }
 
-    private boolean strassenbezeichnungExistsInGWR(String names[],String municipalityId, File gwrFile) throws SQLException {
+    private boolean egidExistsInGWR(int egid,String municipalityId, File gwrFile) throws SQLException {
+        List<String> ret=new ArrayList<String>();
         Connection jdbcConnection=null;
         PreparedStatement stmt=null;
         try {
             jdbcConnection = DriverManager.getConnection("jdbc:sqlite:"+gwrFile, null, null);
-            StringBuffer stmtS=new StringBuffer();
-            stmtS.append("SELECT count(strname) FROM entrance inner join building on entrance.egid=building.egid WHERE GGDENR=? and strname in (");
-            String sep="";
-            for(int idx=0;idx<names.length;idx++) {
-                stmtS.append(sep);
-                stmtS.append("?");
-                sep=",";
-            }
-            stmtS.append(")");
-            stmt=jdbcConnection.prepareStatement(stmtS.toString());
-            stmt.setString(1,municipalityId);
-            for(int idx=0;idx<names.length;idx++) {
-                stmt.setString(2+idx,names[idx]);
+            if(municipalityId!=null) {
+                stmt=jdbcConnection.prepareStatement("SELECT EGID FROM building WHERE EGID=? AND GGDENR=?");
+                stmt.setInt(1,egid);
+                stmt.setString(2,municipalityId);
+            }else {
+                stmt=jdbcConnection.prepareStatement("SELECT EGID FROM building WHERE EGID=?");
+                stmt.setInt(1,egid);
             }
             ResultSet rs = stmt.executeQuery();
             if(rs.next()) {
-                return rs.getInt(1)>=1;
+                return true;
             }
         }finally {
             if(stmt!=null) {

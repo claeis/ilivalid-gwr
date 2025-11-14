@@ -28,7 +28,7 @@ import ch.interlis.iox_j.validator.ObjectPool;
 import ch.interlis.iox_j.validator.Value;
 
 // FUNCTION  expectAdresseGWR(Lokalisation: LIST OF TEXT; Hausnummer:TEXT; plz:0..9999; ortschaft:TEXT;egid: GWR_EGID;edid: GWR_EDID;gstatNotEqual:BAG OF NUMERIC):BOOLEAN;
-public class ExpectAdresseGwrPlugin implements InterlisFunction {
+public class ExpectAdresseGwrIoxPlugin implements InterlisFunction {
     public static final String ILI_QUALIFIED_FUNCTION_NAME = "IliValidGwr_V1_0.expectAdresseGWR";
     private TransferDescription td=null;
     private GwrDownload gwr=null;
