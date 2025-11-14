@@ -15,6 +15,12 @@ public class GwrDownload {
     private ch.interlis.ilirepository.IliManager iliManager=null;
     public GwrDownload(ch.interlis.ilirepository.IliManager iliManager) {
         this.iliManager=iliManager;
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+        
     }
     public File getLocalGwrDump() throws IoxException {
         String fileName=System.getenv(ENV_ILIVALID_GWR_DUMP_HARDFILE);
