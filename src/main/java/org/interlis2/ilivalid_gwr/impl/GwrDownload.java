@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipException;
 
+import ch.ehi.basics.logging.EhiLogger;
 import ch.interlis.ili2c.Ili2cException;
 import ch.interlis.iox.IoxException;
 
@@ -11,7 +12,7 @@ public class GwrDownload {
     private static final String ENV_ILIVALID_GWR_DUMP = "ILIVALID_GWR_DUMP";
     private static final String ENV_ILIVALID_GWR_DUMP_HARDFILE = "ILIVALID_GWR_DUMP_HARDFILE";
     private static final String ILIVALID_GWR_DUMP_DEFAULT = "https://public.madd.bfs.admin.ch/ch.zip";
-    private final long MAX_TTL=43200000L;
+    private final long MAX_TTL=43200000L; // ms
     private ch.interlis.ilirepository.IliManager iliManager=null;
     public GwrDownload(ch.interlis.ilirepository.IliManager iliManager) {
         this.iliManager=iliManager;
@@ -24,49 +25,51 @@ public class GwrDownload {
     }
     public File getLocalGwrDump() throws IoxException {
         String fileName=System.getenv(ENV_ILIVALID_GWR_DUMP_HARDFILE);
-        if(fileName!=null) {
-            return new File(fileName);
-        }
-        fileName=System.getenv(ENV_ILIVALID_GWR_DUMP);
-        if(fileName==null) {
-            fileName=ILIVALID_GWR_DUMP_DEFAULT;
-        }
         File ret=null;
-        try {
-            ret = ch.interlis.ilirepository.IliManager.getLocalCopyOfReposFile(iliManager,fileName,MAX_TTL);
-        } catch (Ili2cException e) {
-            throw new IoxException("failed to get GWR dump file",e);
-        }
-        java.util.zip.ZipFile zipFile=null;
-        try {
+        if(fileName!=null) {
+            ret=new File(fileName);
+        }else {
+            fileName=System.getenv(ENV_ILIVALID_GWR_DUMP);
+            if(fileName==null) {
+                fileName=ILIVALID_GWR_DUMP_DEFAULT;
+            }
             try {
-                zipFile = new java.util.zip.ZipFile(ret);
-            } catch (ZipException e1) {
-                // not a zip file; assume it is directly the sqlite file
-                zipFile=null;
+                ret = ch.interlis.ilirepository.IliManager.getLocalCopyOfReposFile(iliManager,fileName,MAX_TTL);
+            } catch (Ili2cException e) {
+                throw new IoxException("failed to get GWR dump file",e);
             }
-            if(zipFile!=null) {
-                java.util.zip.ZipEntry entry=zipFile.getEntry("data.sqlite");
-                if(entry!=null) {
-                    File sqliteFile=new File(ret.getPath()+"-data.sqlite");
-                    if(sqliteFile.lastModified()<ret.lastModified()) {
-                        // extract sqlite file 
-                        java.io.InputStream input=zipFile.getInputStream(entry);
-                        copyStream(sqliteFile,input);
-                    }
-                    ret=sqliteFile;
-                }
-            }
-        } catch (IOException e) {
-            throw new IoxException("failed to get GWR dump file",e);
-        }finally {
-            if(zipFile!=null) {
+            java.util.zip.ZipFile zipFile=null;
+            try {
                 try {
-                    zipFile.close();
-                } catch (IOException e) {
+                    zipFile = new java.util.zip.ZipFile(ret);
+                } catch (ZipException e1) {
+                    // not a zip file; assume it is directly the sqlite file
+                    zipFile=null;
+                }
+                if(zipFile!=null) {
+                    java.util.zip.ZipEntry entry=zipFile.getEntry("data.sqlite");
+                    if(entry!=null) {
+                        File sqliteFile=new File(ret.getPath()+"-data.sqlite");
+                        if(sqliteFile.lastModified()<ret.lastModified()) {
+                            // extract sqlite file 
+                            java.io.InputStream input=zipFile.getInputStream(entry);
+                            copyStream(sqliteFile,input);
+                        }
+                        ret=sqliteFile;
+                    }
+                }
+            } catch (IOException e) {
+                throw new IoxException("failed to get GWR dump file",e);
+            }finally {
+                if(zipFile!=null) {
+                    try {
+                        zipFile.close();
+                    } catch (IOException e) {
+                    }
                 }
             }
         }
+        EhiLogger.traceState("GWR dump file <"+ret.getPath()+">");
         return ret;
     }
     private static void copyStream(java.io.File outFile, java.io.InputStream in) throws IOException {
