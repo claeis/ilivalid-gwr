@@ -1,0 +1,21 @@
+INTERLIS 2.4;
+
+MODEL EgidSetCompareTest (de) 
+AT "mailto:ce@eisenhutinformatik.ch" 
+VERSION "2025-09-24" =
+IMPORTS IliValidGwr_V1_0;
+
+    TOPIC TopicA = 
+  
+        CLASS Bodenbedeckung =
+        	MunicipalityId: IliValidGwr_V1_0.MunicipalityId;
+        	EGID: IliValidGwr_V1_0.GWR_EGID;
+
+            SET CONSTRAINT GWRC04: 
+                 IliValidGwr_V1_0.egidSetCompareGWR(ALL,>>EGID,MunicipalityId);
+
+        END Bodenbedeckung;
+        
+    END TopicA;
+
+END EgidSetCompareTest.
