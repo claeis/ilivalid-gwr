@@ -19,7 +19,7 @@ import ch.interlis.iox_j.validator.ValidationConfig;
 import ch.interlis.iox_j.validator.Validator;
 
 import org.junit.Before;
-
+import org.interlis2.ilivalid_gwr.impl.GwrDownload;
 import org.junit.Assert;
 
 import java.util.Map;
@@ -43,6 +43,7 @@ public class EgidSetCompareGstatGwrPluginTest {
         ili2cConfig.addFileEntry(new FileEntry("src/test/ili/EgidSetCompareGstatTest.ili", FileEntryKind.ILIMODELFILE));
         td=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
         Assert.assertNotNull(td);
+        System.setProperty(GwrDownload.ENV_ILIVALID_GWR_DUMP_HARDFILE,"src/test/data/data.sqlite");
     }
     @Test
     public void pluginClassName_Ok() {
@@ -156,9 +157,9 @@ public class EgidSetCompareGstatGwrPluginTest {
         }
         {
             Iom_jObject iomObj1=new Iom_jObject(ILI_A_BODENBEDECKUNG, "o2");
-            iomObj1.setattrvalue(ILI_A_BODENBEDECKUNG_EGID,"191958995");
+            iomObj1.setattrvalue(ILI_A_BODENBEDECKUNG_EGID,"11517496");
             iomObj1.setattrvalue(ILI_A_BODENBEDECKUNG_MUNICIPALITY_ID,"3");
-            iomObj1.addattrvalue(ILI_A_BODENBEDECKUNG_GSTAT,"1002"); // 191958995 has gstst 1008
+            iomObj1.addattrvalue(ILI_A_BODENBEDECKUNG_GSTAT,"1004"); // 11517496 has gstst 1004
             validator.validate(new ObjectEvent(iomObj1));
         }
         validator.validate(new EndBasketEvent());

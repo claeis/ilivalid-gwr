@@ -9,8 +9,8 @@ import ch.interlis.ili2c.Ili2cException;
 import ch.interlis.iox.IoxException;
 
 public class GwrDownload {
-    private static final String ENV_ILIVALID_GWR_DUMP = "ILIVALID_GWR_DUMP";
-    private static final String ENV_ILIVALID_GWR_DUMP_HARDFILE = "ILIVALID_GWR_DUMP_HARDFILE";
+    public static final String ENV_ILIVALID_GWR_DUMP = "ILIVALID_GWR_DUMP";
+    public static final String ENV_ILIVALID_GWR_DUMP_HARDFILE = "ILIVALID_GWR_DUMP_HARDFILE";
     private static final String ILIVALID_GWR_DUMP_DEFAULT = "https://public.madd.bfs.admin.ch/ch.zip";
     private final long MAX_TTL=43200000L; // ms
     private ch.interlis.ilirepository.IliManager iliManager=null;
@@ -24,12 +24,12 @@ public class GwrDownload {
         
     }
     public File getLocalGwrDump() throws IoxException {
-        String fileName=System.getenv(ENV_ILIVALID_GWR_DUMP_HARDFILE);
+        String fileName = getenv(ENV_ILIVALID_GWR_DUMP_HARDFILE);
         File ret=null;
         if(fileName!=null) {
             ret=new File(fileName);
         }else {
-            fileName=System.getenv(ENV_ILIVALID_GWR_DUMP);
+            fileName=getenv(ENV_ILIVALID_GWR_DUMP);
             if(fileName==null) {
                 fileName=ILIVALID_GWR_DUMP_DEFAULT;
             }
@@ -81,6 +81,13 @@ public class GwrDownload {
                         out.write(bt,0,i);
                     }
         out.close();
+    }
+    private String getenv(String key) {
+        String value=System.getProperty(key);
+        if(value==null) {
+            value=System.getenv(key);
+        }
+        return value;
     }
 
 }

@@ -145,6 +145,7 @@ jar {
 }
 
 test {
+	inputs.file("src/test/data/data.sqlite")
     testLogging.exceptionFormat = 'full'
 }
 

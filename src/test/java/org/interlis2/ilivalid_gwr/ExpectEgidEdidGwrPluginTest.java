@@ -18,7 +18,7 @@ import ch.interlis.iox_j.validator.ValidationConfig;
 import ch.interlis.iox_j.validator.Validator;
 
 import org.junit.Before;
-
+import org.interlis2.ilivalid_gwr.impl.GwrDownload;
 import org.junit.Assert;
 
 import java.util.Map;
@@ -47,6 +47,7 @@ public class ExpectEgidEdidGwrPluginTest {
         ili2cConfig.addFileEntry(new FileEntry("src/test/ili/ExpectEgidEdidTest.ili", FileEntryKind.ILIMODELFILE));
         td=ch.interlis.ili2c.Ili2c.runCompiler(ili2cConfig);
         Assert.assertNotNull(td);
+        System.setProperty(GwrDownload.ENV_ILIVALID_GWR_DUMP_HARDFILE,"src/test/data/data.sqlite");
     }
     @Test
     public void pluginClassName_Ok() {
