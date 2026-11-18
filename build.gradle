@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'ch.interlis'
-version '1.0.0'+System.getProperty('release','-SNAPSHOT')
+version '1.0.1'+System.getProperty('release','-SNAPSHOT')
 
 configurations {
     ftpAntTask
